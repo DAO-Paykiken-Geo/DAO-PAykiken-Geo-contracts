@@ -1,0 +1,10 @@
+src/js/metacoin-config.js
+node_modules
+build
+.env
+.idea
+*env
+*env*
+env*
+*Store
+/*/**/*Store
