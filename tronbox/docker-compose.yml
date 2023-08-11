@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  testnet:
+    image: tronbox/tre
+    ports:
+      - "9090:9090"
+    environment:
+      accounts: 20
+      defaultBalance: 1000000
+      formatJson: true
+      showQueryString: true
+      showBody: true

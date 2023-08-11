@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<label for="usdt_pool">Governor USDT pool</label>
+<input id="usdt_pool" type="text" oninput="calculate()" placeholder="Governor USDT pool" value="5049646.01973646">
+
+<div style="margin-top: 15px;"></div>
+<label for="circulation">Paykik Circulation</label>
+<input id="circulation" type="text" oninput="calculate()" placeholder="Paykik Circulation" value="1800000">
+
+<div style="margin-top: 15px;"></div>
+<label for="amount">Amount Buy / Sell</label>
+<input id="amount" type="text" oninput="calculate()" placeholder="Amount Buy" value="1000">
+
+
+<table style="border: 1px solid #000; margin-top: 30px;" border="1" cellpadding="10px">
+    <tbody>
+    <tr>
+        <td>First token price</td>
+        <td id="first_token_price"></td>
+    </tr>
+    <tr>
+        <td>Total Pay if BUY</td>
+        <td id="total_pay_buy"></td>
+    </tr>
+    <tr>
+        <td>Total Pay if SELL</td>
+        <td id="total_pay_sell"></td>
+    </tr>
+    <tr>
+        <td>Current Token Price</td>
+        <td id="current_token_price"></td>
+    </tr>
+    <tr>
+        <td>Next token price</td>
+        <td id="next_token_price"></td>
+    </tr>
+    <tr>
+        <td>Maximum USDT to withdraw</td>
+        <td id="usdt_max_withdraw"></td>
+    </tr>
+    </tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
+
+
+<script>
+
+    function calculate() {
+        const n = parseFloat(document.querySelector("#circulation").value);
+        const q = 0.000001;
+
+        let currentPool = parseFloat(document.querySelector("#usdt_pool").value);
+
+        let tokenPrice = 1 + q * (currentPool)
+        let nextTokenPrice = 1 + q * ((currentPool + tokenPrice))
+
+
+        let a1 = (tokenPrice / (1 + q)**(n - 1));
+        // (1 + 0.000001)^(1800000 - 1) = 6.04963596896
+        let S = (a1 * (Math.pow(1 + q, n + 1) - 1)) / q
+
+        if (S > currentPool) {
+            a1 = currentPool / S * a1 // балансировка пулла
+        }
+
+        S = (a1 * (Math.pow(1.000001, n + 1) - 1)) / (1.000001 - 1)
+        // S = (a1 * (( (1 + q)**(n + 1)) - 1)) / (1.000001 - 1)
+
+        // (4.049646 * 1.000001 - 1) / 0.000001 = 5049652.05
+        // (6.049646 * 1.000001 - 1) / 0.000001 = 5049652.05
+
+        let amount = parseFloat(document.querySelector("#amount").value);
+        let S_sell = (a1 * (Math.pow(1.000001, (n - amount)) - 1)) / (1.000001 - 1)
+        let S_buy = (a1 * (Math.pow(1.000001, (n + amount)) - 1)) / (1.000001 - 1)
+
+        document.getElementById("first_token_price").innerHTML = a1.toFixed(6) + " USDT";
+        document.getElementById("current_token_price").innerHTML = tokenPrice.toFixed(6) + " USDT";
+        document.getElementById("next_token_price").innerHTML = nextTokenPrice.toFixed(6) + " USDT";
+        document.getElementById("usdt_max_withdraw").innerHTML = (S * 0.99).toFixed(6) + " USDT";
+        document.getElementById("total_pay_buy").innerHTML = (S_buy - S).toFixed(6) + " USDT";
+        document.getElementById("total_pay_sell").innerHTML = ((S - S_sell) * 0.99).toFixed(6) + " USDT";
+
+
+    }
+
+
+    calculate()
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
